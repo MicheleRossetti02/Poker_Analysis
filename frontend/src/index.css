@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Custom poker theme colors */
+:root {
+  --poker-green: #1a472a;
+  --poker-green-dark: #0d2818;
+  --poker-felt: #35654d;
+  --card-red: #dc2626;
+  --card-black: #171717;
+  --gold: #d4af37;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
