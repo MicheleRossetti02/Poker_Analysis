@@ -277,7 +277,9 @@ class GTOService:
         return {
             "hand": hand_notation,
             "scenario": scenario,
-            "stack": stack_key,
+            "requested_stack": f"{stack}bb",
+            "matched_stack": stack_key,
+            "stack": stack_key,  # Keep for backward compatibility
             "suggestion": suggestion.to_dict(),
             "found_in_database": suggestion != DEFAULT_SUGGESTION
         }

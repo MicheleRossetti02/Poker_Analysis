@@ -47,7 +47,9 @@ class AnalyzeSpotResponse(BaseModel):
     """Response schema for spot analysis."""
     hand: str = Field(..., description="Hand notation (e.g., 'AKs')")
     scenario: str = Field(..., description="Scenario key (e.g., 'BTN_vs_BB')")
-    stack: str = Field(..., description="Stack depth (e.g., '100bb')")
+    requested_stack: str = Field(..., description="Stack size requested by user (e.g., '33bb')")
+    matched_stack: str = Field(..., description="Nearest available stack in database (e.g., '20bb')")
+    stack: str = Field(..., description="Stack depth used for lookup (backward compat)")
     action: str = Field(..., description="Recommended action")
     frequency: float = Field(..., description="Frequency of action (0-1)")
     ev: float = Field(..., description="Expected value in BB")
@@ -68,12 +70,16 @@ async def analyze_spot(request: AnalyzeSpotRequest) -> AnalyzeSpotResponse:
     This endpoint looks up pre-calculated GTO strategies to provide
     instant recommendations without solver computation.
     
+    **Stack Size Handling:**
+    The system uses "nearest neighbor" logic. If you request stack=33,
+    it will match to the closest available stack (20bb or 50bb).
+    
     **Example Request:**
     ```json
     {
         "hero_position": "BTN",
         "villain_position": "BB",
-        "stack": 100,
+        "stack": 33,
         "hand": ["Ah", "Ks"]
     }
     ```
@@ -83,7 +89,9 @@ async def analyze_spot(request: AnalyzeSpotRequest) -> AnalyzeSpotResponse:
     {
         "hand": "AKs",
         "scenario": "BTN_vs_BB",
-        "stack": "100bb",
+        "requested_stack": "33bb",
+        "matched_stack": "20bb",
+        "stack": "20bb",
         "action": "raise",
         "frequency": 1.0,
         "ev": 1.8,
@@ -127,6 +135,8 @@ async def analyze_spot(request: AnalyzeSpotRequest) -> AnalyzeSpotResponse:
         return AnalyzeSpotResponse(
             hand=result["hand"],
             scenario=result["scenario"],
+            requested_stack=result.get("requested_stack", f"{request.stack}bb"),
+            matched_stack=result.get("matched_stack", result["stack"]),
             stack=result["stack"],
             action=suggestion["action"],
             frequency=suggestion["frequency"],
